@@ -1,6 +1,8 @@
 import express from "express";
 import userRoutes from "./routes/users.js";
-import authRouts from "./routes/auth.js";
+import authRoutes from "./routes/auth.js";
+import itemRoutes from "./routes/item.js";
+import supplierRoutes from "./routes/suppliers.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
@@ -23,5 +25,7 @@ app.use(
 );
 app.use(cookieParser());
 
+app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/auth", authRouts);
+app.use("/api/items", itemRoutes);
+app.use("/api/suppliers", supplierRoutes);

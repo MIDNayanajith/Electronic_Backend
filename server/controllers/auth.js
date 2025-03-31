@@ -6,42 +6,31 @@ import jwt from "jsonwebtoken";
 export const register = (req, res) => {
   // Check if the logged-in user is an admin
   const q = "SELECT role FROM users WHERE id = ?";
-  db.query(q, [decoded.id], (err, data) => {
+  db.query(q, [req.body.id], (err, data) => {
     if (err) return res.status(500).json(err);
-    if (data.length === 0) return res.status(404).json("User not found!");
-    if (data[0].role !== "admin")
-      return res
-        .status(403)
-        .json("Access denied! Only admins can register users.");
-    //CHECK IF USER EXISTS
-    const q = "SELECT * FROM users WHERE email =?";
+    if (data.length) return res.status(409).json("User Already Exists!");
 
-    db.query(q, [req.body.email], (err, data) => {
+    //HASH PASSWORD
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(req.body.password, salt);
+
+    const q =
+      "INSERT INTO users (`first_name`, `last_name`, `profile`,`email`,`password`,`role`,`created_at`,`is_delete`) VALUE(?)";
+
+    const values = [
+      req.body.first_name,
+      req.body.last_name,
+      req.body.profile,
+      req.body.email,
+      hashedPassword,
+      req.body.role,
+      moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+      0,
+    ];
+
+    db.query(q, [values], (err, data) => {
       if (err) return res.status(500).json(err);
-      if (data.length) return res.status(409).json("User already exists");
-
-      //HASH PASSWORD
-      const salt = bcrypt.genSaltSync(10);
-      const hashedPassword = bcrypt.hashSync(req.body.password, salt);
-
-      const q =
-        "INSERT INTO users (`first_name`, `last_name`, `profile`,`email`,`password`,`role`,`created_at`,`is_delete`) VALUE(?)";
-
-      const values = [
-        req.body.first_name,
-        req.body.last_name,
-        req.body.profile,
-        req.body.email,
-        hashedPassword,
-        req.body.role,
-        moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-        0,
-      ];
-
-      db.query(q, [values], (err, data) => {
-        if (err) return res.status(500).json(err);
-        return res.status(200).json("User has been created Successfully!");
-      });
+      return res.status(200).json("User has been created Successfully!");
     });
   });
 };
