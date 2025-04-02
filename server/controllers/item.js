@@ -10,18 +10,51 @@ export const getItem = (req, res) => {
   });
 };
 
+// export const addItem = (req, res) => {
+//   const q =
+//     "INSERT INTO items (`name`,`category`,`unit_price`,`quantity`,`status`,`created_at`,`is_delete`) VALUES(?)";
+//   const values = [
+//     req.body.name,
+//     req.body.category,
+//     req.body.unit_price,
+//     0,
+//     req.body.status,
+//     moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+//     0,
+//   ];
+//   db.query(q, [values], (err, data) => {
+//     if (err) return res.status(500).json(err);
+//     res.json("Item has been created successfully!");
+//   });
+// };
+
 export const addItem = (req, res) => {
+  const { name, category, unit_price, status } = req.body;
+
+  // Set status based on the quantity
+  let statusValue = "out of stock"; // Default value
+  const quantity = 0; // Default quantity for new items, change if needed
+
+  if (quantity === 0) {
+    statusValue = "out of stock";
+  } else if (quantity < 5) {
+    statusValue = "low stock";
+  } else {
+    statusValue = "in stock";
+  }
+
   const q =
-    "INSERT INTO items (`name`,`category`,`unit_price`,`quantity`,`status`,`created_at`,`is_delete`) VALUES(?)";
+    "INSERT INTO items (`name`, `category`, `unit_price`, `quantity`, `status`, `created_at`, `is_delete`) VALUES(?)";
   const values = [
-    req.body.name,
-    req.body.category,
-    req.body.unit_price,
-    req.body.quantity,
-    req.body.status,
+    name,
+    category,
+    unit_price,
+    quantity, // default quantity
+    statusValue, // set dynamic status
     moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-    0,
+    0, // is_delete = 0 (active)
   ];
+
   db.query(q, [values], (err, data) => {
     if (err) return res.status(500).json(err);
     res.json("Item has been created successfully!");
