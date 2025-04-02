@@ -3,6 +3,8 @@ import userRoutes from "./routes/users.js";
 import authRoutes from "./routes/auth.js";
 import itemRoutes from "./routes/item.js";
 import supplierRoutes from "./routes/suppliers.js";
+import purchaseRoutes from "./routes/purchase.js";
+import saleRoutes from "./routes/sale.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
@@ -29,3 +31,5 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/items", itemRoutes);
 app.use("/api/suppliers", supplierRoutes);
+app.use("/api/purchase", purchaseRoutes);
+app.use("/api/sale", saleRoutes);
