@@ -20,7 +20,7 @@ export const register = (req, res) => {
     const values = [
       req.body.first_name,
       req.body.last_name,
-      req.body.profile,
+      req.file ? req.file.filename : "", // image filename
       req.body.email,
       hashedPassword,
       req.body.role,
@@ -34,7 +34,6 @@ export const register = (req, res) => {
     });
   });
 };
-
 //login controller function
 export const login = (req, res) => {
   const q = "SELECT * FROM users WHERE email =?";
