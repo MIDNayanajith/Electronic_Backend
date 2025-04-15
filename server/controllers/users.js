@@ -1,6 +1,8 @@
 import moment from "moment";
 import { db } from "../connect.js";
 import jwt from "jsonwebtoken";
+import fs from "fs";
+import path from "path";
 // export const getUser = (req, res) => {
 //   const token = req.cookies.accessToken;
 //   if (!token) return res.status(401).json("User not logged in!");
@@ -61,22 +63,30 @@ export const updateUser = (req, res) => {
       return res.status(404).json("User not found!");
 
     const oldProfileImage = existingUserData[0].profile;
-
     const newProfileImage = req.file ? req.file.filename : oldProfileImage;
 
-    // If a new image is uploaded, delete the old one
-    if (req.file && oldProfileImage && oldProfileImage !== "") {
+    // Delete old local image only if it's not a URL
+    if (
+      req.file &&
+      oldProfileImage &&
+      oldProfileImage !== "" &&
+      !oldProfileImage.startsWith("http")
+    ) {
       const imagePath = path.join("uploads/user", oldProfileImage);
       fs.unlink(imagePath, (err) => {
-        if (err) console.log("Error deleting old image:", err);
+        if (err) {
+          console.log("Error deleting old image:", err);
+        } else {
+          console.log("Old image deleted successfully:", oldProfileImage);
+        }
       });
     }
 
     const updateQuery = `
-        UPDATE users 
-        SET first_name = ?, last_name = ?, profile = ?, email = ?, created_at = ?
-        WHERE id = ? AND is_delete = 0
-      `;
+      UPDATE users 
+      SET first_name = ?, last_name = ?, profile = ?, email = ?, created_at = ?
+      WHERE id = ? AND is_delete = 0
+    `;
 
     const values = [
       req.body.first_name,
